@@ -58,7 +58,6 @@ const motherJob = async () => {
 		})
 
 		telegramBot.start()
-
 	} catch (error) {
 		console.log(error)
 	}
