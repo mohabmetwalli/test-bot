@@ -5,7 +5,6 @@ import OpenAI from 'openai'
 import { MongoClient } from 'mongodb'
 
 const setUser = () => {
-
 	const user = {
 		telegramID: '',
 		telegramMessage: '',
@@ -13,11 +12,9 @@ const setUser = () => {
 	}
 
 	return user
-
 }
 
 const getResponseFromChatGPT = async (messageFromTelegram) => {
-
 	const chatGPT = new OpenAI({
 		apiKey: process.env.OPENAI_API_KEY
 	})
@@ -30,7 +27,6 @@ const getResponseFromChatGPT = async (messageFromTelegram) => {
 	const chatGPTResponse = await chatGPT.chat.completions.create(messageParameters)
 
 	return chatGPTResponse
-
 }
 
 const saveConversationToMongoDB = async ({ 
@@ -38,10 +34,7 @@ const saveConversationToMongoDB = async ({
 	telegramMessage,
 	chatGPTResponse
 }) => {
-
 	const mongoDBClient = new MongoClient(process.env.MONGODB_CONNECTION_STRING);
-
-	const mongoDB = await mongoDBClient.connect()
 
 	const mongoDBResponse = await mongoDB.db('testbot').collection('testbot-collection').insertOne({
 		userid: telegramID,
@@ -50,36 +43,25 @@ const saveConversationToMongoDB = async ({
 	})
 }
 
-
 const motherJob = async () => {
-
 	try {
-
 		const user = setUser()
-			
+
 		const telegramBot = new Bot(process.env.TELEGRAM_TOKEN)
 
 		telegramBot.on("message:text", async (ctx) => {
-
 			user.telegramID = ctx.from.id
-
 			user.telegramMessage = ctx.message.text
-
-			user.chatGPTResponse = await getResponseFromChatGPT(user.telegramMessage) // Replace with string to test telegram and MongoDB in case of rate limit error.
-
+			user.chatGPTResponse = 'Message received.' // await getResponseFromChatGPT(user.telegramMessage) 
 			await saveConversationToMongoDB(user)
-
 			ctx.reply(user.chatGPTResponse)
 		})
 
 		telegramBot.start()
 
 	} catch (error) {
-
 		console.log(error)
-
 	}
-
 }
 
 motherJob()
